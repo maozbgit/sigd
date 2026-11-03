@@ -279,6 +279,9 @@ input.ltr { direction: ltr; text-align: right; }
 .done-actions { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 4px; }
 .done h3:focus { outline: none; }
 .done bdi { white-space: nowrap; }
+.cal { display: flex; gap: 10px; flex-wrap: wrap; }
+.cal[hidden] { display: none !important; }
+.cal .btn { padding: 12px 20px; font-size: .95rem; }
 .form-note { grid-column: 1 / -1; font-size: .95rem; color: var(--ink-2); }
 .form-note a { text-underline-offset: 3px; }
 .btn-line-light { color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--ink-2); }
@@ -312,7 +315,6 @@ input.ltr { direction: ltr; text-align: right; }
 .demo-set { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
 .demo-set legend, .demo-k { font-size: .9rem; color: var(--cream-ink-2); padding: 0; margin-bottom: 8px; display: block; }
 .demo-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.a11y-grid .wide { grid-column: 1 / -1; }
 .demo-seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .demo-seg label { display: grid; place-items: center; min-height: 44px; border-radius: 8px; border: 1px solid var(--coffee-line); background: var(--coffee-2); color: var(--cream-ink); font-size: .95rem; cursor: pointer; }
 .demo-seg input:checked + label { background: var(--straw); border-color: var(--straw); color: var(--coffee); font-weight: 600; }
@@ -538,6 +540,10 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
           <h3 id="d-title" tabindex="-1">המקום שמור</h3>
           <p id="d-body"></p>
           <p id="d-mail"></p>
+          <div class="cal" id="d-cal" hidden>
+            <a class="btn btn-line-dark" id="cal-google" target="_blank" rel="noopener">הוספה ליומן Google</a>
+            <a class="btn btn-line-dark" href="sigd.ics" download="sigd.ics">קובץ ליומן (אייפון, אאוטלוק)</a>
+          </div>
           <p class="mock demo-only">הדגמה: ההרשמה לא נשמרה ולא נשלח מייל.</p>
           <div class="done-actions">
             <button class="btn btn-line-dark" type="button" id="reg-again">הרשמה של אדם נוסף</button>
@@ -808,7 +814,8 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
         <button type="button" data-demo="mail-waitlist">רשימת המתנה</button>
         <button type="button" data-demo="mail-promoted">התפנה מקום</button>
         <button type="button" data-demo="mail-reminder">תזכורת, 17.11</button>
-        <button type="button" data-demo="mail-contact" class="wide">פנייה חדשה, למארגנים</button>
+        <button type="button" data-demo="mail-newreg">הרשמה חדשה, למארגנים</button>
+        <button type="button" data-demo="mail-contact">פנייה חדשה, למארגנים</button>
       </div>
     </div>
   </div>
@@ -840,10 +847,54 @@ var SIGD_EVENT = {
   address: 'רחוב התאנים 9, בית אליעזר, חדרה',
   waze: 'https://waze.com/ul?q=%D7%94%D7%AA%D7%90%D7%A0%D7%99%D7%9D%209%20%D7%97%D7%93%D7%A8%D7%94&navigate=yes',
   site: 'https://sigd.co.il/',
-  capacity: 30
+  capacity: 30,
+  end: '21:00',                 // assumed end time, used only for calendar entries
+  startUtc: '20261118T163000Z', // 18:30 Israel time (UTC+2 in November)
+  endUtc: '20261118T190000Z'
 };
 
-/* kind: 'confirmed' | 'waitlist' | 'promoted' | 'reminder' | 'contact'. Returns { subject, html, text }. */
+/* "Add to Google Calendar" link for the evening. */
+function sigdCalendarUrl() {
+  var ev = SIGD_EVENT;
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + encodeURIComponent(ev.name) +
+    '&dates=' + ev.startUtc + '/' + ev.endUtc +
+    '&ctz=Asia%2FJerusalem' +
+    '&location=' + encodeURIComponent(ev.address) +
+    '&details=' + encodeURIComponent('ערב בסלון סביב חג הסיגד, ' + ev.place + '.\n' + ev.site);
+}
+
+/* iCalendar file for the evening (Apple / Outlook). Also deployed as /sigd.ics and attached to confirmation emails. */
+function sigdIcs() {
+  var ev = SIGD_EVENT;
+  function txt(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+  function fold(line) { // RFC 5545: lines of at most 75 bytes, continued with CRLF + space
+    var out = '', bytes = 0;
+    for (var i = 0; i < line.length; i++) {
+      var c = line.charCodeAt(i), b = c < 0x80 ? 1 : c < 0x800 ? 2 : (c >= 0xD800 && c < 0xDC00) ? 4 : (c >= 0xDC00 && c < 0xE000) ? 0 : 3;
+      if (bytes + b > 74) { out += '\r\n '; bytes = 1; }
+      out += line[i]; bytes += b;
+    }
+    return out;
+  }
+  return [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//sigd.co.il//Sigd host evening//HE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:sigd-host-evening-2026@sigd.co.il',
+    'DTSTAMP:20261104T000000Z',
+    'DTSTART:' + ev.startUtc,
+    'DTEND:' + ev.endUtc,
+    'SUMMARY:' + txt(ev.name),
+    'LOCATION:' + txt(ev.address),
+    'DESCRIPTION:' + txt('ערב בסלון סביב חג הסיגד, ' + ev.place + '.\nהחניה ברחוב מוגבלת מאוד. אפשר להגיע עם קו 14.\n' + ev.site),
+    'URL:' + ev.site,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + txt(ev.name), 'TRIGGER:-PT2H', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'
+  ].map(fold).join('\r\n') + '\r\n';
+}
+
+/* kind: 'confirmed' | 'waitlist' | 'promoted' | 'reminder' (to registrants), 'newreg' | 'contact' (to organizers).
+   Returns { subject, html, text }. */
 function sigdEmail(kind, d) {
   d = d || {};
   var ev = SIGD_EVENT;
@@ -872,6 +923,12 @@ function sigdEmail(kind, d) {
   }
   function button(href, label) {
     return '<p style="margin:0 0 26px"><a href="' + href + '" style="display:inline-block;background:' + C.straw + ';color:' + C.coffee + ';font:600 16px/1 ' + sans + ';padding:14px 26px;border-radius:999px;text-decoration:none">' + label + '</a></p>';
+  }
+  function buttons(list) { // [[href, label, primary?], ...]
+    return '<p style="margin:0 0 26px">' + list.map(function (b) {
+      var look = b[2] ? 'background:' + C.straw + ';color:' + C.coffee : 'background:' + C.netela + ';color:' + C.ink + ';border:1px solid ' + C.ink2;
+      return '<a href="' + b[0] + '" style="display:inline-block;margin:0 0 8px 8px;' + look + ';font:600 16px/1 ' + sans + ';padding:14px 24px;border-radius:999px;text-decoration:none">' + b[1] + '</a>';
+    }).join('') + '</p>';
   }
   function stripe() {
     var cols = [C.fuchsia, C.straw, C.leaf, C.straw], cells = '';
@@ -907,9 +964,9 @@ function sigdEmail(kind, d) {
         h1('המקום שמור, ' + esc(first)) +
         p('שמרנו ' + seats + ' לערב סיגד בית מארח. מחכים לכם בסלון.') +
         facts(eventFacts.concat([['כמה', seats]])) +
-        button(ev.waze, 'ניווט בוויז') + getting +
+        buttons([[ev.waze, 'ניווט בוויז', true], [esc(sigdCalendarUrl()), 'הוספה ליומן Google']]) + getting +
         p('יום לפני הערב נשלח לכם תזכורת. לא תוכלו להגיע, או שמספר האנשים השתנה? השיבו למייל הזה ונעדכן.') + sign),
-      text: ['המקום שמור, ' + first, '', 'שמרנו ' + seats + ' לערב סיגד בית מארח.'].concat(textFacts, ['כמה: ' + seats, 'ניווט: ' + ev.waze, '',
+      text: ['המקום שמור, ' + first, '', 'שמרנו ' + seats + ' לערב סיגד בית מארח.'].concat(textFacts, ['כמה: ' + seats, 'ניווט: ' + ev.waze, 'הוספה ליומן: ' + sigdCalendarUrl(), '',
         'ברכב: החניה ברחוב מוגבלת מאוד. בתחבורה ציבורית: קו 14.', '',
         'יום לפני הערב נשלח לכם תזכורת. לא תוכלו להגיע, או שמספר האנשים השתנה? השיבו למייל הזה.', '', 'נתראה,', 'מארחי סיגד בית מארח']).join('\n')
     };
@@ -936,9 +993,9 @@ function sigdEmail(kind, d) {
         h1('התפנה מקום, ' + esc(first)) +
         p('שמחים לבשר: התפנה מקום בסלון, והעברנו אתכם מרשימת ההמתנה. שמרנו ' + seats + ' לערב סיגד בית מארח.') +
         facts(eventFacts.concat([['כמה', seats]])) +
-        button(ev.waze, 'ניווט בוויז') + getting +
+        buttons([[ev.waze, 'ניווט בוויז', true], [esc(sigdCalendarUrl()), 'הוספה ליומן Google']]) + getting +
         p('יום לפני הערב נשלח לכם תזכורת. כבר לא תוכלו להגיע? השיבו למייל הזה, כדי שנוכל לתת את המקום למישהו אחר.') + sign),
-      text: ['התפנה מקום, ' + first, '', 'שמחים לבשר: התפנה מקום בסלון, והעברנו אתכם מרשימת ההמתנה. שמרנו ' + seats + ' לערב סיגד בית מארח.'].concat(textFacts, ['כמה: ' + seats, 'ניווט: ' + ev.waze, '',
+      text: ['התפנה מקום, ' + first, '', 'שמחים לבשר: התפנה מקום בסלון, והעברנו אתכם מרשימת ההמתנה. שמרנו ' + seats + ' לערב סיגד בית מארח.'].concat(textFacts, ['כמה: ' + seats, 'ניווט: ' + ev.waze, 'הוספה ליומן: ' + sigdCalendarUrl(), '',
         'ברכב: החניה ברחוב מוגבלת מאוד. בתחבורה ציבורית: קו 14.', '',
         'יום לפני הערב נשלח לכם תזכורת. כבר לא תוכלו להגיע? השיבו למייל הזה, כדי שנוכל לתת את המקום למישהו אחר.', '', 'נתראה,', 'מארחי סיגד בית מארח']).join('\n')
     };
@@ -955,6 +1012,27 @@ function sigdEmail(kind, d) {
       text: ['נתראה מחר, ' + first, '', 'תזכורת: מחר בערב נפתח את הסלון לערב סיגד בית מארח. שמרנו לכם ' + seats + '.'].concat(textFacts, ['ניווט: ' + ev.waze, '',
         'ברכב: החניה ברחוב מוגבלת מאוד. בתחבורה ציבורית: קו 14.', '',
         'לא תוכלו להגיע? השיבו למייל הזה, כדי שנוכל לתת את המקום למישהו מרשימת ההמתנה.', '', 'נתראה,', 'מארחי סיגד בית מארח']).join('\n')
+    };
+  }
+  if (kind === 'newreg') {
+    var wait = d.status === 'waitlist';
+    var people = g === 1 ? 'איש אחד' : g + ' אנשים';
+    var statusText = wait ? 'רשימת המתנה' + (d.position ? ', מקום ' + d.position : '') : 'מקום שמור';
+    var load = 'תפוסה: ' + (Number(d.taken) || 0) + ' מתוך ' + ev.capacity + ' מקומות.';
+    var rowsN = [['שם', esc(name)], ['טלפון', '<span dir="ltr">' + esc(d.phone) + '</span>'], ['אימייל', '<span dir="ltr">' + esc(d.email) + '</span>'],
+                 ['כמה', people], ['סטטוס', statusText]];
+    if (d.note) rowsN.push(['הערה', esc(d.note)]);
+    rowsN.push(['נרשמו', esc(d.when || '')]);
+    return {
+      subject: 'הרשמה חדשה: ' + name + ', ' + people + (wait ? ', המתנה' : '') + ' (' + (Number(d.taken) || 0) + '/' + ev.capacity + ')',
+      html: shell(esc(load),
+        h1(wait ? 'הרשמה חדשה לרשימת ההמתנה' : 'הרשמה חדשה') +
+        facts(rowsN) +
+        p('<b>' + esc(load) + '</b>') +
+        small('כדי לכתוב לנרשם, השיבו למייל הזה. כל ההרשמות נמצאות בגיליון, בלשונית "הרשמות".')),
+      text: [wait ? 'הרשמה חדשה לרשימת ההמתנה' : 'הרשמה חדשה', '', 'שם: ' + name, 'טלפון: ' + (d.phone || ''), 'אימייל: ' + (d.email || ''),
+        'כמה: ' + people, 'סטטוס: ' + statusText].concat(d.note ? ['הערה: ' + d.note] : [], ['נרשמו: ' + (d.when || ''), '', load, '',
+        'כדי לכתוב לנרשם, השיבו למייל הזה.']).join('\n')
     };
   }
   if (kind === 'contact') {
@@ -1153,10 +1231,12 @@ var sigdForms = (function () {
   /* --- registration --- */
   var reg = document.getElementById('reg-form'), regDone = document.getElementById('reg-done');
   var regErr = document.getElementById('reg-send-err');
+  document.getElementById('cal-google').href = sigdCalendarUrl();
   var last = { reg: null, contact: null };
 
   function showRegDone(status, d, position) {
-    last.reg = { name: d.name, email: d.email, phone: d.phone, guests: d.guests, position: position, status: status };
+    last.reg = { name: d.name, email: d.email, phone: d.phone, guests: d.guests, note: d.note || '', position: position, status: status };
+    document.getElementById('d-cal').hidden = status !== 'confirmed';
     var first = firstName(d.name);
     if (status === 'waitlist') {
       document.getElementById('d-title').textContent = 'אתם ברשימת ההמתנה, ' + first;
@@ -1251,7 +1331,7 @@ var sigdForms = (function () {
 /* ---------- demo panel and email preview ---------- */
 (function () {
   if (!SIGD_DEMO) return;
-  var SAMPLE_REG = { name: 'דנה כהן', email: 'dana@example.com', phone: '0501234567', guests: '2' };
+  var SAMPLE_REG = { name: 'דנה כהן', email: 'dana@example.com', phone: '0501234567', guests: '2', note: 'יש במשפחה שלי סיפור על הדרך' };
   var SAMPLE_CONTACT = { name: 'יוסי לוי', reply: 'yossi@example.com', message: 'שלום, אפשר להגיע עם עגלת תינוק? יש מדרגות בכניסה?' };
   var ORGANIZERS = 'כתובת המייל של המארגנים';
 
@@ -1275,12 +1355,15 @@ var sigdForms = (function () {
   function preview(kind) {
     var r = sigdForms.last.reg || SAMPLE_REG, c = sigdForms.last.contact || SAMPLE_CONTACT;
     var d = kind === 'contact' ? { name: c.name, reply: c.reply, message: c.message, when: now() }
+      : kind === 'newreg' ? { name: r.name, phone: r.phone, email: r.email, guests: r.guests, note: r.note, when: now(),
+          status: r.status || 'confirmed', position: r.status === 'waitlist' ? (r.position || 3) : null, taken: r.status === 'waitlist' ? 30 : 14 }
       : { name: r.name, guests: r.guests, position: kind === 'waitlist' ? (r.position || 3) : null };
     var mail = sigdEmail(kind, d);
     var meta = {
-      confirmed: [r.email, ORGANIZERS, 'מיד אחרי ההרשמה'],
+      confirmed: [r.email, ORGANIZERS, 'מיד אחרי ההרשמה, עם קובץ יומן מצורף (sigd.ics)'],
       waitlist: [r.email, ORGANIZERS, 'מיד אחרי ההרשמה'],
-      promoted: [r.email, ORGANIZERS, 'כשמשנים בגיליון את הסטטוס מ"המתנה" ל"מאושר"'],
+      promoted: [r.email, ORGANIZERS, 'כשמשנים בגיליון את הסטטוס מ"המתנה" ל"מאושר", עם קובץ יומן מצורף'],
+      newreg: [ORGANIZERS, r.email, 'מיד אחרי כל הרשמה'],
       reminder: [r.email, ORGANIZERS, 'יום שלישי, 17 בנובמבר 2026, בשעה 10:00, לכל מי שיש לו מקום שמור'],
       contact: [ORGANIZERS, /@/.test(c.reply) ? c.reply : ORGANIZERS, 'מיד אחרי שליחת הפנייה']
     }[kind];

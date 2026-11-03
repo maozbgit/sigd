@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//sigd.co.il//Sigd host evening//HE
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:sigd-host-evening-2026@sigd.co.il
+DTSTAMP:20261104T000000Z
+DTSTART:20261118T163000Z
+DTEND:20261118T190000Z
+SUMMARY:סיגד בית מארח
+LOCATION:רחוב התאנים 9\, בית אליעזר\, חדרה
+DESCRIPTION:ערב בסלון סביב חג הסיגד\, בסלון של 
+ לילך צגאי.\nהחניה ברחוב מוגבלת מאוד. אפשר
+  להגיע עם קו 14.\nhttps://sigd.co.il/
+URL:https://sigd.co.il/
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:סיגד בית מארח
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+END:VCALENDAR

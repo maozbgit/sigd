@@ -733,7 +733,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
       <h2>פנייה בנושא נגישות</h2>
       <div class="body">
         <p>נציג הנגישות: <b>מעוז</b></p>
-        <p>דוא״ל: <a href="mailto:Ethilil01@gmail.com" dir="ltr">Ethilil01@gmail.com</a></p>
+        <p>דוא״ל: <a href="mailto:sigd.co.il@gmail.com" dir="ltr">sigd.co.il@gmail.com</a></p>
         <p>אפשר לפנות גם דרך <a href="#contact">טופס צור קשר</a>. כתבו שהפנייה בנושא נגישות, ונחזור אליכם.</p>
         <p>הצהרה זו עודכנה לאחרונה ב־4 בנובמבר 2026.</p>
       </div>
@@ -1175,7 +1175,7 @@ function sigdEmail(kind, d) {
 /* SIGD_ENDPOINT: the Apps Script web-app URL. While it is empty the site runs in demo mode:
    nothing is sent, and the demo panel shows what registrants see and the emails they get.
    ?demo=1 in the address forces demo mode even after the endpoint is set. */
-var SIGD_ENDPOINT = '';
+var SIGD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzpwmnzQFUJmqWwqjuC2xwS3XXj2HB4letZS2kfv37a9I2ul9C7xPQr01uzpOnmhzrt/exec';
 var SIGD_DEMO = !SIGD_ENDPOINT || /[?&]demo(=1)?(&|$)/.test(location.search);
 if (SIGD_DEMO) document.documentElement.classList.add('is-demo');
 

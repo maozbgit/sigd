@@ -82,8 +82,6 @@ nav { display: flex; align-items: center; gap: clamp(12px, 2.4vw, 28px); font-fa
 nav a { text-decoration: none; color: var(--cream-ink-2); padding-block: 4px; border-bottom: 1px solid transparent; }
 nav a:hover { color: var(--cream-ink); }
 nav a[aria-current="page"] { color: var(--cream-ink); border-bottom-color: var(--straw); }
-nav .later { color: #A89888; cursor: default; }
-nav .later small { font-size: .75rem; margin-inline-start: 4px; }
 nav .nav-cta { color: var(--coffee); background: var(--straw); padding: 7px 16px; border-radius: 999px; border: 0; font-weight: 600; }
 nav .nav-cta:hover { color: var(--coffee); background: #E4B456; }
 
@@ -181,6 +179,10 @@ input[type="tel"], input[type="email"] { direction: ltr; text-align: right; }
 .guests input:focus-visible + label { outline: 2px solid var(--straw); outline-offset: 3px; }
 .consent { grid-column: 1 / -1; display: flex; gap: 12px; align-items: flex-start; color: var(--cream-ink-2); font-weight: 400; }
 .consent input { width: 18px; height: 18px; margin-top: 4px; accent-color: var(--straw); flex: none; }
+.consents { grid-column: 1 / -1; display: grid; gap: 10px; }
+.consents .field { gap: 0; }
+.consents .err { min-height: 0; }
+.consents .err:not(:empty) { margin-top: 4px; }
 .form-actions { grid-column: 1 / -1; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; padding-top: 6px; }
 .mock { font-size: .9rem; color: #B5A596; }
 .done { display: grid; gap: 14px; padding-top: 8px; font-family: var(--f-sans); }
@@ -254,7 +256,6 @@ footer .geez { color: var(--straw); }
   .customs { grid-template-columns: 1fr; }
   .journey li { grid-template-columns: 1fr; gap: 4px; }
   .contact .wrap { grid-template-columns: 1fr; }
-  nav .later { display: none; }
   .top .wrap { gap: 10px; }
 }
 
@@ -368,7 +369,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
 
 /* ---------- accessibility modes ---------- */
 :root.a11y-contrast { --netela: #fff; --stone: #fff; --ink: #000; --ink-2: #000; --coffee: #000; --coffee-2: #000; --coffee-line: #fff; --cream-ink: #fff; --cream-ink-2: #fff; --rule: #000; --straw: #FFD400; --fuchsia: #8A0036; --leaf: #005A3C; }
-:root.a11y-contrast .mock, :root.a11y-contrast nav .later, :root.a11y-contrast input::placeholder, :root.a11y-contrast textarea::placeholder { color: #fff; }
+:root.a11y-contrast .mock, :root.a11y-contrast input::placeholder, :root.a11y-contrast textarea::placeholder { color: #fff; }
 :root.a11y-contrast .round-list { border-top-color: #000; }
 :root.a11y-gray .site { filter: grayscale(1); }
 :root.a11y-links a { text-decoration: underline !important; text-underline-offset: 3px; }
@@ -390,7 +391,6 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
     <nav aria-label="ניווט ראשי">
       <a href="#home" data-page="home">הערב</a>
       <a href="#sigd" data-page="sigd">על הסיגד</a>
-      <span class="later" aria-disabled="true">סיפורים<small>בקרוב</small></span>
       <a href="#contact">צור קשר</a>
       <a class="nav-cta" href="#register">שמירת מקום</a>
     </nav>
@@ -429,7 +429,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
     <div class="wrap">
       <p class="aside">על הערב</p>
       <div>
-        <p class="big">בכל בית של יהודי אתיופיה בישראל יש סיפור על הדרך. לפעמים הוא נאמר ליד הקפה, ולפעמים הוא לא נאמר אף פעם. פעם בשנה, סביב חג הסיגד, אנחנו נפתח את הסלון ונקשיב לו. השנה זה מתחיל בבית אחד, בחדרה.</p>
+        <p class="big">בכל בית של יהודי אתיופיה בישראל יש סיפור על הדרך. לפעמים הוא נאמר ליד הקפה, ולפעמים הוא לא נאמר אף פעם.<br>פעם בשנה, סביב חג הסיגד, אנחנו נפתח את הסלון ונקשיב לו. השנה זה מתחיל בבית אחד, בחדרה.</p>
       </div>
     </div>
   </section>
@@ -516,6 +516,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
             <label for="f-note">רוצים לשתף משהו לפני הערב? <span class="opt">(לא חובה)</span></label>
             <textarea id="f-note" name="note" placeholder="למשל: יש במשפחה שלי סיפור על הדרך שהייתי רוצה לספר"></textarea>
           </div>
+          <div class="consents">
           <div class="field full">
             <label class="consent" for="f-mailok"><input id="f-mailok" name="mailok" type="checkbox" required aria-required="true" aria-describedby="e-mailok">אני מאשר/ת קבלת מיילים בנוגע להרשמה לערב: אישור, תזכורת ועדכונים על האירוע.</label>
             <div class="err" id="e-mailok" role="alert"></div>
@@ -526,6 +527,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
           </div>
           <div class="field full">
             <label class="consent" for="f-future"><input id="f-future" name="future" type="checkbox">אשמח לקבל הזמנה גם לערבי סיגד בית מארח בשנים הבאות <span class="opt">(לא חובה)</span></label>
+          </div>
           </div>
           <div class="hp" aria-hidden="true"><label for="f-website">אתר</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
           <div class="form-actions">
@@ -553,7 +555,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
 
         <div class="privacy" id="privacy">
           <h3>פרטיות</h3>
-          <p>הפרטים שתמסרו בטופס ההרשמה ובטופס צור הקשר נשמרים בגיליון Google של מארגני הערב, מעוז ולילך צגאי, ורק הם רואים אותם. נשתמש בהם רק כדי לנהל את ההרשמה, לשלוח לכם אישור ותזכורת ולענות לפניות, ולא נעביר אותם לאף אחד אחר. אין חובה חוקית למסור את הפרטים, אבל בלי שם, טלפון ואימייל לא נוכל לשמור לכם מקום. עד סוף 2026 נמחק את הפרטים, חוץ משל מי שביקש הזמנה לשנים הבאות. אפשר לבקש לראות, לתקן או למחוק את הפרטים שלכם דרך <a href="#contact">טופס צור קשר</a>.</p>
+          <p>הפרטים שתמסרו בטופס ההרשמה ובטופס צור קשר נשמרים אצל מארגני הערב, ורק הם רואים אותם. נשתמש בהם רק כדי לנהל את ההרשמה, לשלוח לכם אישור ותזכורת ולענות לפניות, ולא נעביר אותם לאף אחד אחר. אין חובה חוקית למסור את הפרטים, אבל בלי שם, טלפון ואימייל לא נוכל לשמור לכם מקום. עד סוף 2026 נמחק את הפרטים, חוץ משל מי שביקש הזמנה לשנים הבאות. אפשר לבקש לראות, לתקן או למחוק את הפרטים שלכם דרך <a href="#contact">טופס צור קשר</a>.</p>
         </div>
       </div>
     </div>
@@ -1208,6 +1210,11 @@ var sigdForms = (function () {
     var b = document.createElement('bdi'); b.textContent = ltr; el.appendChild(b);
     el.appendChild(document.createTextNode(after));
   }
+  // The form above the result box disappears, so the page gets shorter: bring the box to the top and focus its title.
+  function reveal(box, titleId) {
+    box.scrollIntoView({ block: 'start' });
+    document.getElementById(titleId).focus({ preventScroll: true });
+  }
   function firstName(n) { return String(n || '').trim().split(/\s+/)[0]; }
   function seats(g) { g = Number(g) || 1; return g === 1 ? 'מקום אחד' : g + ' מקומות'; }
 
@@ -1276,7 +1283,7 @@ var sigdForms = (function () {
     busy(reg, true);
     send(d).then(function (res) {
       showRegDone(res.status === 'waitlist' ? 'waitlist' : 'confirmed', d, res.position);
-      document.getElementById('d-title').focus();
+      reveal(regDone, 'd-title');
     }, function () {
       regErr.textContent = 'לא הצלחנו לשמור את ההרשמה. נסו שוב בעוד רגע, ואם זה חוזר, כתבו לנו בטופס צור קשר.';
     }).then(function () { busy(reg, false); });
@@ -1313,7 +1320,7 @@ var sigdForms = (function () {
     busy(con, true);
     send(d).then(function () {
       showContactDone(d);
-      document.getElementById('c-done-title').focus();
+      reveal(conDone, 'c-done-title');
     }, function () {
       conErr.textContent = 'לא הצלחנו לשלוח את ההודעה. נסו שוב בעוד רגע.';
     }).then(function () { busy(con, false); });

@@ -849,7 +849,7 @@ var SIGD_EVENT = {
   address: 'רחוב התאנים 9, בית אליעזר, חדרה',
   waze: 'https://waze.com/ul?q=%D7%94%D7%AA%D7%90%D7%A0%D7%99%D7%9D%209%20%D7%97%D7%93%D7%A8%D7%94&navigate=yes',
   site: 'https://sigd.co.il/',
-  capacity: 40,
+  capacity: 50,
   end: '21:00',                 // assumed end time, used only for calendar entries
   startUtc: '20261118T163000Z', // 18:30 Israel time (UTC+2 in November)
   endUtc: '20261118T190000Z'
@@ -1363,7 +1363,7 @@ var sigdForms = (function () {
     var r = sigdForms.last.reg || SAMPLE_REG, c = sigdForms.last.contact || SAMPLE_CONTACT;
     var d = kind === 'contact' ? { name: c.name, reply: c.reply, message: c.message, when: now() }
       : kind === 'newreg' ? { name: r.name, phone: r.phone, email: r.email, guests: r.guests, note: r.note, when: now(),
-          status: r.status || 'confirmed', position: r.status === 'waitlist' ? (r.position || 3) : null, taken: r.status === 'waitlist' ? 40 : 14 }
+          status: r.status || 'confirmed', position: r.status === 'waitlist' ? (r.position || 3) : null, taken: r.status === 'waitlist' ? 50 : 14 }
       : { name: r.name, guests: r.guests, position: kind === 'waitlist' ? (r.position || 3) : null };
     var mail = sigdEmail(kind, d);
     var meta = {

@@ -278,6 +278,7 @@ footer .sponsors-row + .wrap { padding-block-start: 24px; }
 .contact h2 { font-size: clamp(2rem, 4vw, var(--s-4) + .4rem); letter-spacing: -.01em; }
 .contact-body { display: grid; gap: 18px; }
 .contact-body > p { font-size: var(--s-2); line-height: 1.6; }
+@media (max-width: 900px) { .contact .wrap { grid-template-columns: 1fr; } } /* after the base rule, so it wins */
 
 /* ---------- form states ---------- */
 .hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; overflow: hidden; }
@@ -305,6 +306,26 @@ input.ltr { direction: ltr; text-align: right; }
 .on-light .err, .on-light .send-err { color: var(--err); }
 .on-light .field.invalid input, .on-light .field.invalid textarea { border-color: var(--err); }
 .on-light .mock { color: var(--ink-2); }
+.on-light .consent { color: var(--ink); }
+.on-light .opt { color: var(--ink-2); font-weight: 400; }
+/* Feedback form: sub-headings, and ratings 1-5 in the attendee-button pattern (the radio covers its circle), in light colors.
+   A question shares its line with the circles when there is room; otherwise the circles drop below it, still on the left. */
+.form-sub { grid-column: 1 / -1; display: grid; gap: 6px; padding-top: 10px; }
+.form-sub:first-child { padding-top: 0; }
+.form-sub h3 { font-family: var(--f-serif); font-size: var(--s-2); color: var(--ink); }
+.form-sub p { margin: 0; color: var(--ink-2); font-size: 1rem; line-height: 1.6; max-width: 60ch; }
+.rates { grid-column: 1 / -1; display: grid; gap: 16px; }
+.rate { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.rate-q { margin: 0; flex: 1 1 16rem; color: var(--ink); font-weight: 600; line-height: 1.5; }
+.rate-opts { display: flex; gap: 8px; margin-inline-start: auto; }
+.consent.is-off { color: var(--ink-2); cursor: default; }
+.consent.is-off input { cursor: default; }
+.rate-opts label { position: relative; display: inline-grid; cursor: pointer; }
+.rate-opts input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 999px; opacity: 0; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.rate-opts span { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--ink-2); color: var(--ink); background: var(--netela); font-variant-numeric: tabular-nums; }
+.rate-opts label:hover span { border-color: var(--ink); }
+.rate-opts input:checked + span { background: var(--coffee); border-color: var(--coffee); color: var(--netela); font-weight: 600; }
+.rate-opts input:focus-visible + span { outline: 2px solid var(--coffee); outline-offset: 3px; }
 .done.on-light p { color: var(--ink-2); }
 
 /* ---------- privacy ---------- */
@@ -564,7 +585,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
 
         <div class="privacy" id="privacy">
           <h3>פרטיות</h3>
-          <p>הפרטים שתמסרו בטופס ההרשמה ובטופס צור קשר נשמרים אצל מארגני הערב, ורק הם רואים אותם. נשתמש בהם רק כדי לנהל את ההרשמה, לשלוח לכם אישור ותזכורת ולענות לפניות, ולא נעביר אותם לאף אחד אחר. אין חובה חוקית למסור את הפרטים, אבל בלי שם, טלפון ואימייל לא נוכל לשמור לכם מקום. עד סוף 2026 נמחק את הפרטים, חוץ משל מי שביקש הזמנה לשנים הבאות. אפשר לבקש לראות, לתקן או למחוק את הפרטים שלכם דרך <a href="#contact">טופס צור קשר</a>.</p>
+          <p>הפרטים שתמסרו בטופס ההרשמה, בטופס צור קשר ובשאלון המשוב נשמרים אצל מארגני הערב, ורק הם רואים אותם. נשתמש בהם רק כדי לנהל את ההרשמה, לשלוח לכם אישור ותזכורת, לענות לפניות וללמוד מהמשוב, ולא נעביר אותם לאף אחד אחר. אין חובה חוקית למסור את הפרטים, אבל בלי שם, טלפון ואימייל לא נוכל לשמור לכם מקום. עד סוף 2026 נמחק את הפרטים, חוץ משל מי שביקש הזמנה לשנים הבאות. אפשר לבקש לראות, לתקן או למחוק את הפרטים שלכם דרך <a href="#contact">טופס צור קשר</a>.</p>
         </div>
       </div>
     </div>
@@ -606,6 +627,109 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
           <div class="done-actions">
             <button class="btn btn-ink" type="button" id="contact-again">שליחת הודעה נוספת</button>
             <button class="btn btn-line-light demo-only" type="button" id="c-preview">המייל שיגיע למארגנים</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ======================= FEEDBACK (after the evening) ======================= -->
+<div id="page-feedback" hidden>
+  <section class="sigd-hero compact" aria-labelledby="fb-title">
+    <div class="wrap">
+      <div>
+        <h1 id="fb-title">תודה שבאתם</h1>
+        <p class="lede">תודה שהייתם איתנו בסלון. נשמח לשמוע איך היה לכם, כדי שבשנה הבאה יהיה עוד יותר טוב. אף שאלה אינה חובה, וזה לוקח דקה או שתיים.</p>
+      </div>
+    </div>
+  </section>
+  <section class="contact" aria-labelledby="fb-form-title">
+    <div class="wrap">
+      <h2 id="fb-form-title">המשוב שלכם</h2>
+      <div class="contact-body">
+        <form id="fb-form" class="on-light" novalidate>
+          <div class="form-sub">
+            <h3>איך היה?</h3>
+            <p>דרגו מ-1 (בכלל לא) עד 5 (מאוד). אפשר לדלג על כל שאלה, ולחיצה נוספת על עיגול מבטלת את הבחירה.</p>
+          </div>
+          <div class="rates">
+            <div class="rate" role="radiogroup" aria-labelledby="q-overall">
+              <p class="rate-q" id="q-overall">בסך הכול, כמה נהניתם מהערב?</p>
+              <div class="rate-opts"><label><input type="radio" name="r-overall" value="1" aria-label="1 מתוך 5"><span aria-hidden="true">1</span></label><label><input type="radio" name="r-overall" value="2" aria-label="2 מתוך 5"><span aria-hidden="true">2</span></label><label><input type="radio" name="r-overall" value="3" aria-label="3 מתוך 5"><span aria-hidden="true">3</span></label><label><input type="radio" name="r-overall" value="4" aria-label="4 מתוך 5"><span aria-hidden="true">4</span></label><label><input type="radio" name="r-overall" value="5" aria-label="5 מתוך 5"><span aria-hidden="true">5</span></label></div>
+            </div>
+            <div class="rate" role="radiogroup" aria-labelledby="q-talks">
+              <p class="rate-q" id="q-talks">כמה נגעו בכם ההרצאות של הדוברים?</p>
+              <div class="rate-opts"><label><input type="radio" name="r-talks" value="1" aria-label="1 מתוך 5"><span aria-hidden="true">1</span></label><label><input type="radio" name="r-talks" value="2" aria-label="2 מתוך 5"><span aria-hidden="true">2</span></label><label><input type="radio" name="r-talks" value="3" aria-label="3 מתוך 5"><span aria-hidden="true">3</span></label><label><input type="radio" name="r-talks" value="4" aria-label="4 מתוך 5"><span aria-hidden="true">4</span></label><label><input type="radio" name="r-talks" value="5" aria-label="5 מתוך 5"><span aria-hidden="true">5</span></label></div>
+            </div>
+            <div class="rate" role="radiogroup" aria-labelledby="q-food">
+              <p class="rate-q" id="q-food">כמה אהבתם את המטעמים האתיופיים?</p>
+              <div class="rate-opts"><label><input type="radio" name="r-food" value="1" aria-label="1 מתוך 5"><span aria-hidden="true">1</span></label><label><input type="radio" name="r-food" value="2" aria-label="2 מתוך 5"><span aria-hidden="true">2</span></label><label><input type="radio" name="r-food" value="3" aria-label="3 מתוך 5"><span aria-hidden="true">3</span></label><label><input type="radio" name="r-food" value="4" aria-label="4 מתוך 5"><span aria-hidden="true">4</span></label><label><input type="radio" name="r-food" value="5" aria-label="5 מתוך 5"><span aria-hidden="true">5</span></label></div>
+            </div>
+            <div class="rate" role="radiogroup" aria-labelledby="q-vibe">
+              <p class="rate-q" id="q-vibe">כמה נעימה וביתית הייתה האווירה בסלון?</p>
+              <div class="rate-opts"><label><input type="radio" name="r-vibe" value="1" aria-label="1 מתוך 5"><span aria-hidden="true">1</span></label><label><input type="radio" name="r-vibe" value="2" aria-label="2 מתוך 5"><span aria-hidden="true">2</span></label><label><input type="radio" name="r-vibe" value="3" aria-label="3 מתוך 5"><span aria-hidden="true">3</span></label><label><input type="radio" name="r-vibe" value="4" aria-label="4 מתוך 5"><span aria-hidden="true">4</span></label><label><input type="radio" name="r-vibe" value="5" aria-label="5 מתוך 5"><span aria-hidden="true">5</span></label></div>
+            </div>
+            <div class="rate" role="radiogroup" aria-labelledby="q-crowd">
+              <p class="rate-q" id="q-crowd">כמה נהניתם מהמפגש עם שאר האורחים?</p>
+              <div class="rate-opts"><label><input type="radio" name="r-crowd" value="1" aria-label="1 מתוך 5"><span aria-hidden="true">1</span></label><label><input type="radio" name="r-crowd" value="2" aria-label="2 מתוך 5"><span aria-hidden="true">2</span></label><label><input type="radio" name="r-crowd" value="3" aria-label="3 מתוך 5"><span aria-hidden="true">3</span></label><label><input type="radio" name="r-crowd" value="4" aria-label="4 מתוך 5"><span aria-hidden="true">4</span></label><label><input type="radio" name="r-crowd" value="5" aria-label="5 מתוך 5"><span aria-hidden="true">5</span></label></div>
+            </div>
+            <div class="rate" role="radiogroup" aria-labelledby="q-learn">
+              <p class="rate-q" id="q-learn">כמה למדתם משהו חדש על העלייה מאתיופיה ועל חג הסיגד?</p>
+              <div class="rate-opts"><label><input type="radio" name="r-learn" value="1" aria-label="1 מתוך 5"><span aria-hidden="true">1</span></label><label><input type="radio" name="r-learn" value="2" aria-label="2 מתוך 5"><span aria-hidden="true">2</span></label><label><input type="radio" name="r-learn" value="3" aria-label="3 מתוך 5"><span aria-hidden="true">3</span></label><label><input type="radio" name="r-learn" value="4" aria-label="4 מתוך 5"><span aria-hidden="true">4</span></label><label><input type="radio" name="r-learn" value="5" aria-label="5 מתוך 5"><span aria-hidden="true">5</span></label></div>
+            </div>
+            <div class="rate" role="radiogroup" aria-labelledby="q-recommend">
+              <p class="rate-q" id="q-recommend">כמה סביר שתמליצו לחברים להגיע לערב כזה?</p>
+              <div class="rate-opts"><label><input type="radio" name="r-recommend" value="1" aria-label="1 מתוך 5"><span aria-hidden="true">1</span></label><label><input type="radio" name="r-recommend" value="2" aria-label="2 מתוך 5"><span aria-hidden="true">2</span></label><label><input type="radio" name="r-recommend" value="3" aria-label="3 מתוך 5"><span aria-hidden="true">3</span></label><label><input type="radio" name="r-recommend" value="4" aria-label="4 מתוך 5"><span aria-hidden="true">4</span></label><label><input type="radio" name="r-recommend" value="5" aria-label="5 מתוך 5"><span aria-hidden="true">5</span></label></div>
+            </div>
+          </div>
+          <div class="form-sub">
+            <h3>במילים שלכם</h3>
+          </div>
+          <div class="field full">
+            <label for="fb-liked">מה אהבתם במיוחד?</label>
+            <textarea id="fb-liked" name="liked" maxlength="3000"></textarea>
+          </div>
+          <div class="field full">
+            <label for="fb-improve">מה הייתם משפרים או עושים אחרת בשנה הבאה?</label>
+            <textarea id="fb-improve" name="improve" maxlength="3000"></textarea>
+          </div>
+          <div class="form-sub">
+            <h3>הפרטים שלכם</h3>
+            <p>אפשר לשלוח גם בלי שם ובלי פרטים. אם תשאירו אימייל או טלפון, נוכל לחזור אליכם ולהזמין אתכם לערב בשנה הבאה.</p>
+          </div>
+          <div class="field full">
+            <label for="fb-name">שם</label>
+            <input id="fb-name" name="name" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="fb-email">אימייל</label>
+            <input id="fb-email" name="email" type="email" autocomplete="email" aria-describedby="e-fb-email">
+            <div class="err" id="e-fb-email" role="alert"></div>
+          </div>
+          <div class="field">
+            <label for="fb-phone">טלפון</label>
+            <input id="fb-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="e-fb-phone">
+            <div class="err" id="e-fb-phone" role="alert"></div>
+          </div>
+          <div class="field full">
+            <label class="consent" for="fb-future" id="fb-future-label"><input id="fb-future" name="future" type="checkbox" aria-describedby="fb-future-hint"><span>אשמח לקבל הזמנה לערב סיגד בית מארח בשנה הבאה <span class="opt" id="fb-future-hint">(אפשר לסמן אחרי שממלאים אימייל או טלפון)</span></span></label>
+          </div>
+          <div class="hp" aria-hidden="true"><label for="fb-website">אתר</label><input id="fb-website" name="website" tabindex="-1" autocomplete="off"></div>
+          <div class="form-actions">
+            <button class="btn btn-ink" type="submit">שליחת המשוב</button>
+            <span class="mock demo-only">הדגמה: המשוב לא יישלח.</span>
+            <span class="send-err" id="fb-send-err" role="alert"></span>
+          </div>
+          <p class="form-note">המשוב והפרטים נשמרים אצל מארגני הערב, ורק הם רואים אותם. לא נעביר אותם לאף אחד אחר. <a href="#privacy">עוד על פרטיות</a></p>
+        </form>
+        <div class="done on-light" id="fb-done" hidden>
+          <h3 id="fb-done-title" tabindex="-1">תודה</h3>
+          <p id="fb-done-body">קיבלנו את המשוב, והוא יעזור לנו לתכנן את הערב בשנה הבאה. נשמח לראות אתכם שוב.</p>
+          <p class="mock demo-only">הדגמה: המשוב לא נשלח.</p>
+          <div class="done-actions">
+            <a class="btn btn-ink" href="#home">לעמוד הבית</a>
+            <button class="btn btn-line-light demo-only" type="button" id="fb-preview">המייל שיגיע למארגנים</button>
           </div>
         </div>
       </div>
@@ -821,6 +945,7 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
         <button type="button" data-demo="screen-confirmed">הרשמה, יש מקום</button>
         <button type="button" data-demo="screen-waitlist">הרשמה, רשימת המתנה</button>
         <button type="button" data-demo="screen-contact">פנייה בצור קשר</button>
+        <button type="button" data-demo="screen-feedback">משוב אחרי הערב</button>
         <button type="button" data-demo="reset">איפוס הטפסים</button>
       </div>
     </div>
@@ -831,8 +956,10 @@ footer a { color: var(--straw); text-underline-offset: 3px; }
         <button type="button" data-demo="mail-waitlist">רשימת המתנה</button>
         <button type="button" data-demo="mail-promoted">התפנה מקום</button>
         <button type="button" data-demo="mail-reminder">תזכורת, 17.11</button>
+        <button type="button" data-demo="mail-thanks">תודה אחרי הערב</button>
         <button type="button" data-demo="mail-newreg">הרשמה חדשה, למארגנים</button>
         <button type="button" data-demo="mail-contact">פנייה חדשה, למארגנים</button>
+        <button type="button" data-demo="mail-feedback">משוב חדש, למארגנים</button>
       </div>
     </div>
   </div>
@@ -869,6 +996,24 @@ var SIGD_EVENT = {
   startUtc: '20261118T163000Z', // 18:30 Israel time (UTC+2 in November)
   endUtc: '20261118T190000Z'
 };
+
+/* The evening's three speakers, thanked in the post-event email with their phone numbers (for lecture bookings). */
+var SIGD_SPEAKERS = [
+  { name: 'דוד מהרט', phone: '052-287-0736' },
+  { name: 'דוד בן עוזיאל (טרזן)', phone: '054-444-3774' },
+  { name: 'קייס גשאו', phone: '054-426-5131' }
+];
+var SIGD_HOSTS = 'לילך, מעוז, עופרי ואלה';
+/* Feedback ratings, 1 to 5: [key, question on the form, short label for the sheet]. The form's markup repeats the questions. */
+var SIGD_RATINGS = [
+  ['overall', 'בסך הכול, כמה נהניתם מהערב?', 'נהנו מהערב'],
+  ['talks', 'כמה נגעו בכם ההרצאות של הדוברים?', 'ההרצאות'],
+  ['food', 'כמה אהבתם את המטעמים האתיופיים?', 'האוכל'],
+  ['vibe', 'כמה נעימה וביתית הייתה האווירה בסלון?', 'האווירה'],
+  ['crowd', 'כמה נהניתם מהמפגש עם שאר האורחים?', 'הקהל'],
+  ['learn', 'כמה למדתם משהו חדש על העלייה מאתיופיה ועל חג הסיגד?', 'למדו משהו חדש'],
+  ['recommend', 'כמה סביר שתמליצו לחברים להגיע לערב כזה?', 'ימליצו לחברים']
+];
 
 /* "Add to Google Calendar" link for the evening. */
 function sigdCalendarUrl() {
@@ -910,7 +1055,7 @@ function sigdIcs() {
   ].map(fold).join('\r\n') + '\r\n';
 }
 
-/* kind: 'confirmed' | 'waitlist' | 'promoted' | 'reminder' (to registrants), 'newreg' | 'contact' (to organizers).
+/* kind: 'confirmed' | 'waitlist' | 'promoted' | 'reminder' | 'thanks' (to registrants), 'newreg' | 'contact' | 'feedback' (to organizers).
    Returns { subject, html, text }. */
 function sigdEmail(kind, d) {
   d = d || {};
@@ -1066,6 +1211,79 @@ function sigdEmail(kind, d) {
       text: ['פנייה חדשה מהאתר', '', 'שם: ' + name, 'לחזור אל: ' + reply, 'נשלחה: ' + (d.when || ''), '', String(d.message || ''), '', how].join('\n')
     };
   }
+  if (kind === 'thanks') {
+    var fbUrl = ev.site + '#feedback';
+    var tel = function (ph) { return 'tel:+972' + String(ph).replace(/\D/g, '').replace(/^0/, ''); };
+    var speakers = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 24px;background:' + C.stone + ';border-radius:10px">' +
+      SIGD_SPEAKERS.map(function (sp, i, all) {
+        var pad = (i === 0 ? '18px' : '7px') + ' 20px ' + (i === all.length - 1 ? '18px' : '7px');
+        return '<tr><td style="padding:' + pad + '"><span style="display:block;white-space:nowrap;font:600 17px/1.5 ' + sans + ';color:' + C.ink + '">' + esc(sp.name) + '</span>' +
+          '<a href="' + tel(sp.phone) + '" dir="ltr" style="color:' + C.ink2 + ';font:400 16px/1.5 ' + sans + ';text-decoration:none;white-space:nowrap">' + esc(sp.phone) + '</a></td></tr>';
+      }).join('') + '</table>';
+    var t1 = 'תודה שהייתם איתנו בסיגד בית מארח. טעמנו יחד מטעמים אתיופיים, הקשבנו לסיפורים, ובזכותכם זה היה ערב מרגש ומיוחד.';
+    var t2 = 'תודה גדולה לשלושת הדוברים, שחלקו איתנו את הסיפורים שלהם. רוצים להזמין אחד מהם להרצאה בקהילה, בבית הספר או בעבודה? אפשר להתקשר אליו ישירות:';
+    var t3 = 'נשמח לשמוע איך היה לכם. הכנו שאלון. זה לוקח דקה או שתיים.';
+    var t4 = 'מעדיפים לכתוב במילים שלכם? פשוט השיבו למייל הזה.';
+    var t5 = 'שוב תודה על ערב מיוחד.';
+    return {
+      subject: 'תודה שבאתם לסיגד בית מארח',
+      html: shell('תודה על ערב מרגש. בפנים: הטלפונים של הדוברים ושאלון קצר.',
+        h1('תודה שבאתם, ' + esc(first)) +
+        p(t1) +
+        p(t2) +
+        speakers +
+        p(t3) +
+        button(fbUrl, 'למילוי השאלון') +
+        small(t4) +
+        p(t5) +
+        p('נתראה בשנה הבאה,<br>' + SIGD_HOSTS)),
+      text: ['תודה שבאתם, ' + first, '', t1, '', t2].concat(SIGD_SPEAKERS.map(function (sp) { return sp.name + ': ' + sp.phone; }),
+        ['', t3, 'לשאלון: ' + fbUrl, t4, '', t5, '', 'נתראה בשנה הבאה,', SIGD_HOSTS]).join('\n')
+    };
+  }
+  if (kind === 'feedback') {
+    var rowsF = [['שם', esc(name || 'לא נמסר')]];
+    var r = d.ratings || {};
+    var rateLine = SIGD_RATINGS.map(function (k) { return k[2] + ': ' + (r[k[0]] ? r[k[0]] + '/5' : 'דילגו'); });
+    // Each question with five circles, the chosen score filled in, like on the form.
+    function dots(v) {
+      var cells = '';
+      for (var n = 1; n <= 5; n++) {
+        var on = n === v;
+        cells += (n > 1 ? '<td width="6" style="width:6px;font-size:0">&nbsp;</td>' : '') +
+          '<td width="30" height="30" align="center" style="width:30px;height:30px;border-radius:15px;border:1px solid ' + (on ? C.coffee : C.cream2) +
+          ';background:' + (on ? C.coffee : C.netela) + ';color:' + (on ? C.cream : C.ink2) + ';font:' + (on ? 700 : 400) + ' 14px/30px ' + sans + '">' + n + '</td>';
+      }
+      return '<table role="presentation" cellpadding="0" cellspacing="0" dir="rtl" style="margin:0"><tr>' + cells +
+        (v ? '' : '<td style="padding-right:12px;font:400 14px/30px ' + sans + ';color:' + C.ink2 + '">דילגו</td>') + '</tr></table>';
+    }
+    var ratingsHtml = '<div style="margin:0 0 24px;padding:18px 20px;background:' + C.stone + ';border-radius:10px">' +
+      SIGD_RATINGS.map(function (k, i) {
+        return '<p style="margin:' + (i ? '14px' : '0') + ' 0 6px;font:600 15px/1.5 ' + sans + ';color:' + C.ink + '">' + esc(k[1]) + '</p>' +
+          '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="left">' + dots(Number(r[k[0]]) || 0) + '</td></tr></table>';
+      }).join('') + '</div>';
+    if (d.email) rowsF.push(['אימייל', '<span dir="ltr">' + esc(d.email) + '</span>']);
+    if (d.phone) rowsF.push(['טלפון', '<span dir="ltr">' + esc(d.phone) + '</span>']);
+    rowsF.push(['שנה הבאה', d.future ? 'רוצים הזמנה' : 'לא ביקשו']);
+    function quote(title, t) {
+      return t ? '<p style="margin:0 0 6px;font:600 15px/1.5 ' + sans + ';color:' + C.ink2 + '">' + title + '</p>' +
+        '<div style="margin:0 0 18px;padding:16px 20px;background:' + C.stone + ';border-right:3px solid ' + C.straw + ';border-radius:6px;font:400 17px/1.7 ' + sans + ';color:' + C.ink + ';white-space:pre-wrap">' + esc(t) + '</div>' : '';
+    }
+    rowsF.push(['נשלח', esc(d.when || '')]);
+    var howF = d.email ? 'כדי לענות, פשוט השיבו למייל הזה.' : 'לא נמסר אימייל.';
+    return {
+      subject: 'משוב חדש מהאתר' + (name ? ': ' + name : ''),
+      html: shell(esc(rateLine.join(' · ')),
+        h1('משוב חדש') +
+        facts(rowsF) +
+        ratingsHtml +
+        quote('מה אהבו במיוחד', d.liked) + quote('מה היו משפרים', d.improve) +
+        small(howF + ' כל המשובים נמצאים בגיליון, בלשונית "משובים".')),
+      text: ['משוב חדש', '', 'שם: ' + (name || 'לא נמסר')].concat(d.email ? ['אימייל: ' + d.email] : [], d.phone ? ['טלפון: ' + d.phone] : [],
+        ['שנה הבאה: ' + (d.future ? 'רוצים הזמנה' : 'לא ביקשו'), 'נשלח: ' + (d.when || ''), ''], rateLine,
+        ['', 'מה אהבו במיוחד: ' + (d.liked || '–'), 'מה היו משפרים: ' + (d.improve || '–'), '', howF]).join('\n')
+    };
+  }
   throw new Error('Unknown email kind: ' + kind);
 }
 /* EMAILS:END */
@@ -1149,14 +1367,14 @@ function sigdEmail(kind, d) {
 
 /* ---------- pages ---------- */
 (function () {
-  var pages = { home: document.getElementById('page-home'), sigd: document.getElementById('page-sigd'), accessibility: document.getElementById('page-accessibility') };
-  var titles = { home: 'סיגד בית מארח', sigd: 'על חג הסיגד', accessibility: 'הצהרת נגישות' };
+  var pages = { home: document.getElementById('page-home'), sigd: document.getElementById('page-sigd'), accessibility: document.getElementById('page-accessibility'), feedback: document.getElementById('page-feedback') };
+  var titles = { home: 'סיגד בית מארח', sigd: 'על חג הסיגד', accessibility: 'הצהרת נגישות', feedback: 'משוב על הערב' };
   var links = document.querySelectorAll('nav a[data-page]');
   var main = document.getElementById('main-content');
   var first = true;
   function route() {
     var h = (location.hash || '#home').slice(1);
-    var page = (h === 'sigd' || h === 'accessibility') ? h : 'home';
+    var page = (h === 'sigd' || h === 'accessibility' || h === 'feedback') ? h : 'home';
     Object.keys(pages).forEach(function (k) { pages[k].hidden = k !== page; });
     links.forEach(function (a) {
       if (a.dataset.page === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -1254,7 +1472,7 @@ var sigdForms = (function () {
   var reg = document.getElementById('reg-form'), regDone = document.getElementById('reg-done');
   var regErr = document.getElementById('reg-send-err');
   document.getElementById('cal-google').href = sigdCalendarUrl();
-  var last = { reg: null, contact: null };
+  var last = { reg: null, contact: null, feedback: null };
 
   function showRegDone(status, d, position) {
     last.reg = { name: d.name, email: d.email, phone: d.phone, guests: d.guests, note: d.note || '', position: position, status: status };
@@ -1346,8 +1564,66 @@ var sigdForms = (function () {
     resetContact(); document.getElementById('c-name').focus();
   });
 
-  return { showRegDone: showRegDone, showContactDone: showContactDone, last: last,
-           reset: function () { resetReg(); resetContact(); last.reg = last.contact = null; } };
+  /* --- feedback (after the evening) --- */
+  var fb = document.getElementById('fb-form'), fbDone = document.getElementById('fb-done');
+  var fbErr = document.getElementById('fb-send-err');
+
+  // A second tap on a chosen circle clears it, since every question can be skipped.
+  fb.querySelectorAll('.rate-opts input').forEach(function (inp) {
+    inp.addEventListener('pointerdown', function () { inp.dataset.was = inp.checked ? '1' : ''; });
+    inp.addEventListener('click', function () { if (inp.dataset.was === '1') inp.checked = false; inp.dataset.was = ''; });
+  });
+  // "Invite me next year" needs a way to reach them: enabled only once there is an email or a phone.
+  var fbEmail = document.getElementById('fb-email'), fbPhone = document.getElementById('fb-phone');
+  var fbFuture = document.getElementById('fb-future'), fbFutureLabel = document.getElementById('fb-future-label');
+  function syncFuture() {
+    var can = !!(fbEmail.value.trim() || fbPhone.value.trim());
+    fbFuture.disabled = !can;
+    if (!can) fbFuture.checked = false;
+    fbFutureLabel.classList.toggle('is-off', !can);
+    document.getElementById('fb-future-hint').hidden = can;
+  }
+  fbEmail.addEventListener('input', syncFuture);
+  fbPhone.addEventListener('input', syncFuture);
+  syncFuture();
+
+  function showFeedbackDone(d) {
+    last.feedback = { name: d.name, email: d.email, phone: d.phone, ratings: d.ratings, liked: d.liked, improve: d.improve, future: d.future };
+    document.getElementById('fb-done-title').textContent = d.name ? 'תודה, ' + firstName(d.name) : 'תודה';
+    fb.hidden = true; fbDone.hidden = false;
+  }
+
+  fb.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ratings = {};
+    SIGD_RATINGS.forEach(function (k) { var c = fb.querySelector('input[name="r-' + k[0] + '"]:checked'); if (c) ratings[k[0]] = Number(c.value); });
+    var d = { type: 'feedback', ratings: ratings, liked: document.getElementById('fb-liked').value.trim(), improve: document.getElementById('fb-improve').value.trim(),
+              name: document.getElementById('fb-name').value.trim(),
+              email: document.getElementById('fb-email').value.trim(), phone: document.getElementById('fb-phone').value.replace(/[\s-]/g, ''),
+              future: document.getElementById('fb-future').checked, website: document.getElementById('fb-website').value };
+    fbErr.textContent = '';
+    // No field is required, but an entirely empty form has nothing to send.
+    if (!Object.keys(ratings).length && !d.liked && !d.improve && !d.name && !d.email && !d.phone) {
+      fbErr.textContent = 'השאלון עדיין ריק. ענו על שאלה אחת לפחות או כתבו כמה מילים, ואז שלחו.';
+      return;
+    }
+    var ok = true;
+    ok = fieldErr('fb-email', 'e-fb-email', !d.email || EMAIL_RE.test(d.email) ? '' : 'בכתובת האימייל חסר משהו. בדקו שיש בה @ ונקודה, או מחקו אותה') && ok;
+    ok = fieldErr('fb-phone', 'e-fb-phone', !d.phone || PHONE_RE.test(d.phone) ? '' : 'כתבו מספר טלפון ישראלי, למשל 050-1234567, או מחקו אותו') && ok;
+    if (!ok) { fb.querySelector('[aria-invalid="true"]').focus(); return; }
+    busy(fb, true);
+    send(d).then(function () {
+      showFeedbackDone(d);
+      reveal(fbDone, 'fb-done-title');
+    }, function () {
+      fbErr.textContent = 'לא הצלחנו לשלוח את המשוב. נסו שוב בעוד רגע, או פשוט השיבו למייל התודה ששלחנו.';
+    }).then(function () { busy(fb, false); });
+  });
+
+  function resetFeedback() { fb.reset(); clearErrs(fb); syncFuture(); fbErr.textContent = ''; fbDone.hidden = true; fb.hidden = false; }
+
+  return { showRegDone: showRegDone, showContactDone: showContactDone, showFeedbackDone: showFeedbackDone, last: last,
+           reset: function () { resetReg(); resetContact(); resetFeedback(); last.reg = last.contact = last.feedback = null; } };
 })();
 
 /* ---------- demo panel and email preview ---------- */
@@ -1355,6 +1631,8 @@ var sigdForms = (function () {
   if (!SIGD_DEMO) return;
   var SAMPLE_REG = { name: 'דנה כהן', email: 'dana@example.com', phone: '0501234567', guests: '2', note: 'יש במשפחה שלי סיפור על הדרך' };
   var SAMPLE_CONTACT = { name: 'יוסי לוי', reply: 'yossi@example.com', message: 'שלום, אפשר להגיע עם עגלת תינוק? יש מדרגות בכניסה?' };
+  var SAMPLE_FEEDBACK = { name: 'מרים אלמו', email: 'miriam@example.com', phone: '', ratings: { overall: 5, talks: 5, food: 5, vibe: 4, learn: 4, recommend: 5 },
+    liked: 'הסיפורים נגעו בי מאוד, והאוכל היה מעולה.', improve: 'עוד קצת זמן לשאלות אחרי ההרצאות.', future: true };
   var ORGANIZERS = 'כתובת המייל של המארגנים';
 
   var box = document.getElementById('demo'), open = document.getElementById('demo-open'), panel = document.getElementById('demo-panel');
@@ -1375,8 +1653,9 @@ var sigdForms = (function () {
     return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear() + ' בשעה ' + p(d.getHours()) + ':' + p(d.getMinutes());
   }
   function preview(kind) {
-    var r = sigdForms.last.reg || SAMPLE_REG, c = sigdForms.last.contact || SAMPLE_CONTACT;
+    var r = sigdForms.last.reg || SAMPLE_REG, c = sigdForms.last.contact || SAMPLE_CONTACT, f = sigdForms.last.feedback || SAMPLE_FEEDBACK;
     var d = kind === 'contact' ? { name: c.name, reply: c.reply, message: c.message, when: now() }
+      : kind === 'feedback' ? { name: f.name, email: f.email, phone: f.phone, ratings: f.ratings, liked: f.liked, improve: f.improve, future: f.future, when: now() }
       : kind === 'newreg' ? { name: r.name, phone: r.phone, email: r.email, guests: r.guests, note: r.note, when: now(),
           status: r.status || 'confirmed', position: r.status === 'waitlist' ? (r.position || 3) : null, taken: r.status === 'waitlist' ? 60 : 14 }
       : { name: r.name, guests: r.guests, position: kind === 'waitlist' ? (r.position || 3) : null };
@@ -1387,7 +1666,9 @@ var sigdForms = (function () {
       promoted: [r.email, ORGANIZERS, 'כשמשנים בגיליון את הסטטוס מ"המתנה" ל"מאושר", עם קובץ יומן מצורף'],
       newreg: [ORGANIZERS, r.email, 'מיד אחרי כל הרשמה'],
       reminder: [r.email, ORGANIZERS, 'יום שלישי, 17 בנובמבר 2026, בשעה 10:00, לכל מי שיש לו מקום שמור'],
-      contact: [ORGANIZERS, /@/.test(c.reply) ? c.reply : ORGANIZERS, 'מיד אחרי שליחת הפנייה']
+      contact: [ORGANIZERS, /@/.test(c.reply) ? c.reply : ORGANIZERS, 'מיד אחרי שליחת הפנייה'],
+      thanks: [r.email, ORGANIZERS, 'יום חמישי, 19 בנובמבר 2026, בשעה 13:00, לכל מי שהיה לו מקום שמור'],
+      feedback: [ORGANIZERS, f.email || ORGANIZERS, 'מיד אחרי שליחת משוב בעמוד המשוב']
     }[kind];
     document.getElementById('mv-from').textContent = SIGD_EVENT.name;
     document.getElementById('mv-to').textContent = meta[0];
@@ -1409,6 +1690,7 @@ var sigdForms = (function () {
     preview(document.getElementById('reg-done').dataset.status || 'confirmed');
   });
   document.getElementById('c-preview').addEventListener('click', function () { preview('contact'); });
+  document.getElementById('fb-preview').addEventListener('click', function () { preview('feedback'); });
 
   panel.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-demo]'); if (!b) return;
@@ -1416,7 +1698,11 @@ var sigdForms = (function () {
     if (act.indexOf('mail-') === 0) { preview(act.slice(5)); return; }
     if (act === 'reset') { sigdForms.reset(); return; }
     setOpen(false);
-    if (act === 'screen-contact') {
+    if (act === 'screen-feedback') {
+      sigdForms.showFeedbackDone(sigdForms.last.feedback || SAMPLE_FEEDBACK);
+      location.hash = 'feedback';
+      setTimeout(function () { document.getElementById('fb-done-title').focus(); }, 50);
+    } else if (act === 'screen-contact') {
       sigdForms.showContactDone(sigdForms.last.contact || SAMPLE_CONTACT);
       window.sigdGoTo('contact', document.getElementById('c-done-title'));
     } else {
